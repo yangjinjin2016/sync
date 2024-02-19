@@ -1,0 +1,11 @@
+{
+    "name": "framework/syncsso",
+    "type": "library",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Framework\\Syncsso\\": "src/"
+        }
+    },
+    "require": {}
+}
