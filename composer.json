@@ -1,10 +1,10 @@
 {
-    "name": "framework/syncsso",
+    "name": "frameworksso/syncsso",
     "type": "library",
     "license": "proprietary",
     "autoload": {
         "psr-4": {
-            "Framework\\Syncsso\\": "src/"
+            "Frameworksso\\Syncsso\\": "src/"
         }
     },
     "require": {}
