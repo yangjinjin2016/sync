@@ -37,6 +37,7 @@ class Sync
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $content = curl_exec($ch);
         curl_close($ch);
+
         return $content;
     }
 
@@ -164,12 +165,15 @@ class Sync
      */
     public function syncDepart($org)
     {
-        $result = $this->curl_https(config('sso.server_sso_url').config('sso.depart_url').'?OrganizeCode='.$org, '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
+        $result = $this->curl_https(config('sso.server_sso_url').config('sso.depart_url').'?OrganizeCode='.$org, '', 'get',
+            ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
+
         $depart = [];
         $result = json_decode($result,true);
+
         if (isset($result['StatusCode']) && $result['StatusCode'] == 1) {
-            if ($result['Data'] && isset($result['Data']['ListData'])) {
-                $listData = $result['Data']['ListData'];
+            if ($result['Data'] ) {
+                $listData = $result['Data'];
                 foreach ($listData as $item) {
                     $parentId = $item['ParentId'];
                     if ($item['DepartmentFullPath']) {
@@ -186,6 +190,7 @@ class Sync
                         'path' => $item['DepartmentFullPath'],
                         'sort' => isset($item['SortCode']) ? $item['SortCode'] : 0,
                     ];
+
                 }
 
 
