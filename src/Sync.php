@@ -58,16 +58,16 @@ class Sync
     }
 
     /*
-     *  'user_info_url' => 'getuserinfo', // 通过access_token 获取登录用户信息
-        'depart_url' => 'GetDepartmentListByCode', // 通过organizedcode 获取部门
-        'organize_info_url' => 'GetOrganizeInfo', // 通过组织id获取组织信息
-        'user_url' => 'GetUserListByDepart', // 通过部门code获取用户列表
-        'userall_url' => 'getAllUserList', // 通过组织code获取用户列表
-        'user_info' => 'GetUserById',
-         'org_list'=>'GetMyOrgList',//获取账号所在机构（+部门）以及所有的子机构
-        'org'=>'GetOrgList'
-        'class_url'=>'GetClassListByCode'
-        'grade_url'=>'GetGradeListByOrgId'
+     *  'user_info_url' => '/baseInfo/base/users/getuserinfo', // 通过access_token 获取登录用户信息
+        'depart_url' => '/baseInfo/base/users/GetDepartmentListByCode', // 通过organizedcode 获取部门
+        'organize_info_url' => '/api/api/Organize/GetOrganizeInfo', // 通过组织id获取组织信息
+        'user_url' => '/baseInfo/base/usergroup/GetUserListByDepart', // 通过部门code获取用户列表
+        'userall_url' => '/baseInfo/base/users/getAllUserList', // 通过组织code获取用户列表
+        'user_info' => '/baseInfo/base/users/GetUserById',
+         'org_list'=>'/api/api/Organize/GetMyOrgList',//获取账号所在机构（+部门）以及所有的子机构
+    'org'=>'/api/api/Organize/GetOrgList'
+    'class_url'=>'/api/api/department/GetClassListByCode'
+    'grade_url'=>'/api/api/Organize/GetGradeListByOrgId'
      * */
     public function syncOrg($org)
     {
@@ -144,7 +144,9 @@ class Sync
                         'sex' => $item['F_Gender'] == true ? 1 : ($item['F_Gender'] == false ? 2 : 3),
                         'uuid' => $item['F_Uid'],
                         'idcard' => $item['F_IdCard'] ?: '',
-                        'source' => 'sso'
+                        'source' => 'sso',
+                        'depart_id'=>$item['DepartmentId'],
+                        'depart'=>isset($item['Departments'])?$item['Departments']:''
                     ];
                 }
 
