@@ -32,7 +32,7 @@ class Sync
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
         if (strtoupper($method) == "POST") {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));//生成url-encode的请求参数
         }
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $content = curl_exec($ch);
