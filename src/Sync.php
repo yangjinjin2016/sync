@@ -130,21 +130,20 @@ class Sync
         $user = [];
         $result = json_decode($result,true);
         if (isset($result['StatusCode']) && $result['StatusCode'] == 1) {
-            if ($result['Data'] && isset($result['Data']['ListData'])) {
-                $listData = $result['Data']['ListData'];
+            if ($result['Data'] ) {
+                $listData = $result['Data'];
                 foreach ($listData as $item) {
                     $user[] = [
-                        'user_type' => $item['F_UserType'],
-                        'user_name' => $item['F_RealName'],
-                        'login_name' => $item['F_Account'] ?? $item['F_RealName'],
-                        'nickname' => $item['F_RealName'] ?? $item['F_Account'],
-                        'mobile' => $item['F_MobilePhone'] ?? '',
-                        'photo' => $item['F_HeadIcon'] ?? '',
-                        'organizeid' => $item['F_OrganizeId'],
-                        'sex' => $item['F_Gender'] == true ? 1 : ($item['F_Gender'] == false ? 2 : 3),
-                        'uuid' => $item['F_Uid'],
-                        'idcard' => $item['F_IdCard'] ?: '',
-                        'source' => 'sso',
+                        'user_type' => isset($item['F_UserType'])?$item['F_UserType']:(isset($item['UserType'])?$item['UserType']:''),
+                        'user_name' => isset($item['F_RealName'])?$item['F_RealName']:(isset($item['RealName'])?$item['RealName']:''),
+                        'login_name' => isset($item['F_Account']) ?$item['F_Account']: (isset($item['Account'])?$item['Account']:''),
+                        'nickname' => isset($item['F_RealName']) ?$item['F_RealName']: (isset($item['RealName'])?$item['RealName']:''),
+                        'mobile' => isset($item['F_MobilePhone']) ?$item['F_MobilePhone']:(isset($item['MobilePhone'])?$item['MobilePhone']:''),
+                        'photo' => isset($item['F_HeadIcon']) ?$item['F_HeadIcon']:(isset($item['HeadIcon'])?$item['HeadIcon']: ''),
+                        'organizeid' => isset($item['F_OrganizeId'])?$item['F_OrganizeId']:(isset($item['OrganizeId'])?$item['OrganizeId']:''),
+                        'sex' =>(isset($item['F_Gender'])? ($item['F_Gender'] == true ? 1 : ($item['F_Gender'] == false ? 2 : 3)):($item['Gender'] == true ? 1 : ($item['Gender'] == false ? 2 : 3))),
+                        'uuid' => isset($item['F_Uid'])?$item['F_Uid']:(isset($item['Uid'])?$item['Uid']:''),
+                        'idcard' => isset($item['F_IdCard']) ?$item['F_IdCard']:(isset($item['IdCard'])?$item['IdCard']:''),
                         'depart_id'=>$item['DepartmentId'],
                         'depart'=>isset($item['Departments'])?$item['Departments']:''
                     ];
@@ -191,6 +190,11 @@ class Sync
                         'parent_id' => $parentId,// 父部门Id
                         'path' => $item['DepartmentFullPath'],
                         'sort' => isset($item['SortCode']) ? $item['SortCode'] : 0,
+                        'managerid'=>isset($item['ManagerId'])?$item['ManagerId']:'',
+                        'topmanagerid'=>isset($item['TopManagerId'])?$item['TopManagerId']:'',
+                        'categoryid'=>isset($item['CategoryId'])?$item['CategoryId']:'',
+                        'year'=>$item['Year'],
+                        'gradecode'=>$item['GradeCode']
                     ];
 
                 }
@@ -284,17 +288,18 @@ class Sync
         $student = [];
         $result = json_decode($result,true);
         if (isset($result['StatusCode']) && $result['StatusCode'] == 1) {
-            if ($result['Data'] && isset($result['Data']['ListData'])) {
-                $listData = $result['Data']['ListData'];
+            if ($result['Data'] ) {
+                $listData = $result['Data'];
                 foreach ($listData as $item) {
                     $student[] = [
-                        'uuid' => $item['F_Uid'],
-                        'real_name' => $item['F_RealName'] ?? '',
-                        'headicon' => $item['F_HeadIcon'] ?? '',
-                        'mobile' => $item['PhoneNumber'] ?? '',
+                        'real_name' => isset($item['F_RealName'])?$item['F_RealName']:(isset($item['RealName'])?$item['RealName']:''),
+                        'mobile' => isset($item['F_MobilePhone']) ?$item['F_MobilePhone']:(isset($item['MobilePhone'])?$item['MobilePhone']:''),
+                        'headicon' => isset($item['F_HeadIcon']) ?$item['F_HeadIcon']:(isset($item['HeadIcon'])?$item['HeadIcon']: ''),
                         'organizeid' => $org,
-                        'student_code' => $item['F_StudentCode'],
-                        'class_id' => $item['F_DepartmentId'] ?? 0,
+                        'sex' =>(isset($item['F_Gender'])? ($item['F_Gender'] == true ? 1 : ($item['F_Gender'] == false ? 2 : 3)):($item['Gender'] == true ? 1 : ($item['Gender'] == false ? 2 : 3))),
+                        'uuid' => isset($item['F_Uid'])?$item['F_Uid']:(isset($item['Uid'])?$item['Uid']:''),
+                        'student_code' => isset($item['F_StudentCode']) ?$item['F_StudentCode']:(isset($item['StudentCode'])?$item['StudentCode']:''),
+                        'class_id' => isset($item['F_DepartmentId']) ?$item['F_DepartmentId']:(isset($item['DepartmentId'])?$item['DepartmentId']:0),
                     ];
                 }
             }
