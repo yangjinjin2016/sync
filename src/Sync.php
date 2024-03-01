@@ -321,7 +321,7 @@ class Sync
                     //获取组内人员
                     if($group['userCount']>0){//调用接口获取人员
                         $data =['orgId' => $org, 'departId'=> $group['id'],'departType' => 4];
-                        $groupUser =curl_http($url,$data,'post', ['Authorization:Bearer '.$accesstoken]);
+                        $groupUser =curl_http($url,$data,'post', ['Authorization:Bearer '.$this->access_token]);
                         $groupUserList = json_decode($groupUser, true);
                         if($groupUserList&&isset($groupUserList['Data'])&&$groupUserList['StatusCode']==1){//获取到用户
                             $groupUserArray = array_merge($groupUserArray,$groupUserList['Data']['ListData']);
@@ -331,26 +331,33 @@ class Sync
 
             }
         }
-        if (isset($result['StatusCode']) && $result['StatusCode'] == 1) {
-            if ($result['Data'] ) {
-                $listData = $result['Data'];
-                foreach ($listData as $item) {
-                    $student[] = [
-                        'real_name' => isset($item['F_RealName'])?$item['F_RealName']:(isset($item['RealName'])?$item['RealName']:''),
-                        'mobile' => isset($item['F_MobilePhone']) ?$item['F_MobilePhone']:(isset($item['MobilePhone'])?$item['MobilePhone']:''),
-                        'headicon' => isset($item['F_HeadIcon']) ?$item['F_HeadIcon']:(isset($item['HeadIcon'])?$item['HeadIcon']: ''),
-                        'organizeid' => $org,
-                        'sex' =>(isset($item['F_Gender'])? ($item['F_Gender'] == true ? 1 : ($item['F_Gender'] == false ? 2 : 3)):($item['Gender'] == true ? 1 : ($item['Gender'] == false ? 2 : 3))),
-                        'uuid' => isset($item['F_Uid'])?$item['F_Uid']:(isset($item['Uid'])?$item['Uid']:''),
-                        'student_code' => isset($item['F_StudentCode']) ?$item['F_StudentCode']:(isset($item['StudentCode'])?$item['StudentCode']:''),
-                        'class_id' => isset($item['F_DepartmentId']) ?$item['F_DepartmentId']:(isset($item['DepartmentId'])?$item['DepartmentId']:0),
+       return ['group'=>$group,'user'=>$groupUserArray];
+
+    }
+
+
+    public function syncTerm($org){
+
+        $url = config('sso.server_sso_url').config('sso.term_url');
+        $result = $this->curl_https($url, '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
+        $termResultInfo = json_decode($result, true);
+        $addTearm =[];
+        if ($termResultInfo && $termResultInfo['StatusCode'] == 1 && $termResultInfo['Data']) {
+            $term = $termResultInfo['Data'];
+            foreach ($term as $key => $value) {
+                if ($value['IsCurrent']) {
+                    $addTearm[] = [
+                        'code' => $value['TermId'],
+                        'status' => $value['IsCurrent'] ? 1 : 2,
+                        'name' => $value['TermName'],
+                        'start_time' => $value['StartTime'],
+                        'end_time' => $value['EndTime'],
+                        'organizeid'=>$org
                     ];
                 }
             }
         }
-
-        return $student;
-
+        return $addTearm;
     }
 
 
