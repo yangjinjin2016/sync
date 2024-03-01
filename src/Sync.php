@@ -56,19 +56,6 @@ class Sync
             $this->access_token = $response['access_token'];
         }
     }
-
-    /*
-     *  'user_info_url' => '/baseInfo/base/users/getuserinfo', // 通过access_token 获取登录用户信息
-        'depart_url' => '/baseInfo/base/users/GetDepartmentListByCode', // 通过organizedcode 获取部门
-        'organize_info_url' => '/api/api/Organize/GetOrganizeInfo', // 通过组织id获取组织信息
-        'user_url' => '/baseInfo/base/usergroup/GetUserListByDepart', // 通过部门code获取用户列表
-        'userall_url' => '/baseInfo/base/users/getAllUserList', // 通过组织code获取用户列表
-        'user_info' => '/baseInfo/base/users/GetUserById',
-         'org_list'=>'/api/api/Organize/GetMyOrgList',//获取账号所在机构（+部门）以及所有的子机构
-    'org'=>'/api/api/Organize/GetOrgList'
-    'class_url'=>'/api/api/department/GetClassListByCode'
-    'grade_url'=>'/api/api/Organize/GetGradeListByOrgId'
-     * */
     public function syncOrg($org)
     {
         //todo  传参的机构或者获取所有的机构
@@ -306,6 +293,64 @@ class Sync
         }
 
         return $student;
+    }
+
+    public function syncGroup($org){
+        $postData = ['orgId' =>$org,  'departType' => 4];//用户组
+        $url = config('sso.server_sso_url').config('sso.group_url');
+        $result = $this->curl_https($url, $postData, 'post', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
+        $group = [];
+        $result = json_decode($result,true);
+        if($result&&isset($result['Data'])&&$result['StatusCode']==1) {
+            $res = $result['Data']['ListData'];
+            $groupUserArray = [];
+            $groupAllUser = [];
+            foreach ($res as $group){
+                if($group['type']=='publicgroup'){
+                    $groupData[]=[
+                        'groupid'=>trim($group['id'],'g_'),
+                        'groupname'=>$group['text'],
+                        'pid'=>$group['pid'],
+                        'organizeid'=>$org,
+                        'category'=>$group['type'],
+                        'userCount'=>$group['userCount'],
+                        'phone'=>$group['phone'],
+                        'status'=>1,
+                        'path'=>$group['path']
+                    ];
+                    //获取组内人员
+                    if($group['userCount']>0){//调用接口获取人员
+                        $data =['orgId' => $org, 'departId'=> $group['id'],'departType' => 4];
+                        $groupUser =curl_http($url,$data,'post', ['Authorization:Bearer '.$accesstoken]);
+                        $groupUserList = json_decode($groupUser, true);
+                        if($groupUserList&&isset($groupUserList['Data'])&&$groupUserList['StatusCode']==1){//获取到用户
+                            $groupUserArray = array_merge($groupUserArray,$groupUserList['Data']['ListData']);
+                        }
+                    }
+                }
+
+            }
+        }
+        if (isset($result['StatusCode']) && $result['StatusCode'] == 1) {
+            if ($result['Data'] ) {
+                $listData = $result['Data'];
+                foreach ($listData as $item) {
+                    $student[] = [
+                        'real_name' => isset($item['F_RealName'])?$item['F_RealName']:(isset($item['RealName'])?$item['RealName']:''),
+                        'mobile' => isset($item['F_MobilePhone']) ?$item['F_MobilePhone']:(isset($item['MobilePhone'])?$item['MobilePhone']:''),
+                        'headicon' => isset($item['F_HeadIcon']) ?$item['F_HeadIcon']:(isset($item['HeadIcon'])?$item['HeadIcon']: ''),
+                        'organizeid' => $org,
+                        'sex' =>(isset($item['F_Gender'])? ($item['F_Gender'] == true ? 1 : ($item['F_Gender'] == false ? 2 : 3)):($item['Gender'] == true ? 1 : ($item['Gender'] == false ? 2 : 3))),
+                        'uuid' => isset($item['F_Uid'])?$item['F_Uid']:(isset($item['Uid'])?$item['Uid']:''),
+                        'student_code' => isset($item['F_StudentCode']) ?$item['F_StudentCode']:(isset($item['StudentCode'])?$item['StudentCode']:''),
+                        'class_id' => isset($item['F_DepartmentId']) ?$item['F_DepartmentId']:(isset($item['DepartmentId'])?$item['DepartmentId']:0),
+                    ];
+                }
+            }
+        }
+
+        return $student;
+
     }
 
 
