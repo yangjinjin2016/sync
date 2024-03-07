@@ -7,10 +7,11 @@ namespace Framework\Syncsso;
 class Sync
 {
     protected $access_token = '';
-    public function __construct()
+    protected $config=[];
+    public function __construct($config=[])
     {
+        $this->config = $config;
         self::refreshToken();
-
     }
     //curl 获取数据
     public function curl_https($url, $data, $method, $header)
@@ -45,11 +46,11 @@ class Sync
     public function refreshToken(){
         $data =[
             'grant_type' => 'client_credentials',
-            'client_id' => config('sso.oauth_client_id'),
-            'client_secret' => config('sso.oauth_client_secret'),
-            'scope' => config('sso.sync_scope')
+            'client_id' => $this->config['oauth_client_id'],
+            'client_secret' => $this->config['oauth_client_secret'],
+            'scope' => $this->config['sync_scope']
         ];
-        $result = $this->curl_https(config('sso.server_sso_url').config('sso.token_url'), $data, 'post',
+        $result = $this->curl_https($this->config['server_sso_url'].$this->config['token_url'], $data, 'post',
             ['Content-Type' => 'application/x-www-form-urlencoded']);
         if($result){
             $response = json_decode($result, true);
@@ -65,7 +66,7 @@ class Sync
 
         if ($org) {
             //todo 获取机构详情
-            $result = $this->curl_https(config('sso.server_sso_url').config('sso.organize_info_url').'?organizeId='.$org, '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
+            $result = $this->curl_https($this->config['server_sso_url'].$this->config['organize_info_url'].'?organizeId='.$org, '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
             $organizeInfo = json_decode($result, true);
             $orgData[] = [
                 'organizeid' => $organizeInfo['Data']['SingleData']['OrganizeId'],
@@ -77,7 +78,7 @@ class Sync
                 'CategoryId' => $organizeInfo['Data']['SingleData']['CategoryId'],
             ];
         } else {
-            $result = $this->curl_https(config('sso.server_sso_url').config('sso.org'), '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
+            $result = $this->curl_https($this->config['server_sso_url'].$this->config['org'], '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
             //todo 所有的机构
             $result = json_decode($result,true);
             if (isset($result['StatusCode']) && $result['StatusCode'] == 1) {
@@ -132,7 +133,12 @@ class Sync
                         'uuid' => isset($item['F_Uid'])?$item['F_Uid']:(isset($item['Uid'])?$item['Uid']:''),
                         'idcard' => isset($item['F_IdCard']) ?$item['F_IdCard']:(isset($item['IdCard'])?$item['IdCard']:''),
                         'depart_id'=>$item['DepartmentId'],
-                        'depart'=>isset($item['Departments'])?$item['Departments']:''
+                        'depart'=>isset($item['Departments'])?$item['Departments']:'',
+                        'email'=>isset($item['Email'])?$item['Email']:'',
+                        'is_admin'=>isset($item['IsAdministrator'])?$item['IsAdministrator']:'',
+                        'job'=>isset($item['Job'])?$item['Job']:'',
+                        'isaudit'=>isset($item['F_IsAudit'])?$item['F_IsAudit']:0,
+                        'face_img'=>isset($item['F_FaceImg'])?$item['F_FaceImg']:'',
                     ];
                 }
 
@@ -153,7 +159,7 @@ class Sync
      */
     public function syncDepart($org)
     {
-        $result = $this->curl_https(config('sso.server_sso_url').config('sso.depart_url').'?OrganizeCode='.$org, '', 'get',
+        $result = $this->curl_https($this->config['server_sso_url'].$this->config['depart_url'].'?OrganizeCode='.$org, '', 'get',
             ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
 
         $depart = [];
@@ -203,7 +209,7 @@ class Sync
 
     public function syncClass($org)
     {
-        $result = $this->curl_https(config('sso.server_sso_url').config('sso.class_url').'?OrganizeCode='.$org, '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
+        $result = $this->curl_https($this->config['server_sso_url'].$this->config['class_url'].'?OrganizeCode='.$org, '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
         $classs = [];
         $result = json_decode($result,true);
         if (isset($result['StatusCode']) && $result['StatusCode'] == 1) {
@@ -240,7 +246,7 @@ class Sync
 
     public function syncGrade($org)
     {
-        $result = $this->curl_https(config('sso.server_sso_url').config('sso.grade_url').'?organizeId='.$org, '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
+        $result = $this->curl_https($this->config['server_sso_url'].$this->config['grade_url'].'?organizeId='.$org, '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
         $grade = [];
         $result = json_decode($result,true);
         if (isset($result['StatusCode']) && $result['StatusCode'] == 1) {
@@ -271,7 +277,7 @@ class Sync
      */
 
     public function syncStudent($org){
-        $result = $this->curl_https(config('sso.server_sso_url').config('sso.userall_url').'?orgCode='.$org.'&userType=student', '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
+        $result = $this->curl_https($this->config['server_sso_url'].$this->config['userall_url'].'?orgCode='.$org.'&userType=student', '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
         $student = [];
         $result = json_decode($result,true);
         if (isset($result['StatusCode']) && $result['StatusCode'] == 1) {
@@ -297,9 +303,9 @@ class Sync
 
     public function syncGroup($org){
         $postData = ['orgId' =>$org,  'departType' => 4];//用户组
-        $url = config('sso.server_sso_url').config('sso.group_url');
+        $url = $this->config['server_sso_url'].$this->config['group_url'];
         $result = $this->curl_https($url, $postData, 'post', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
-        $group = [];
+        $groupData = [];
         $result = json_decode($result,true);
         if($result&&isset($result['Data'])&&$result['StatusCode']==1) {
             $res = $result['Data']['ListData'];
@@ -331,14 +337,14 @@ class Sync
 
             }
         }
-       return ['group'=>$group,'user'=>$groupUserArray];
+       return ['group'=>$groupData,'user'=>$groupUserArray];
 
     }
 
 
     public function syncTerm($org){
 
-        $url = config('sso.server_sso_url').config('sso.term_url');
+        $url = $this->config['server_sso_url'].$this->config['term_url'];
         $result = $this->curl_https($url, '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
         $termResultInfo = json_decode($result, true);
         $addTearm =[];
