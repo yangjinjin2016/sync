@@ -118,8 +118,8 @@ class Sync
         $user = [];
         $result = json_decode($result,true);
         if (isset($result['StatusCode']) && $result['StatusCode'] == 1) {
-            if ($result['Data'] ) {
-                $listData = $result['Data'];
+            if (isset($result['Data'])&&isset($result['Data']['ListData'])  ) {
+                $listData = $result['Data']['ListData'];
                 foreach ($listData as $item) {
                     $user[] = [
                         'user_type' => isset($item['F_UserType'])?$item['F_UserType']:(isset($item['UserType'])?$item['UserType']:''),
@@ -281,8 +281,8 @@ class Sync
         $student = [];
         $result = json_decode($result,true);
         if (isset($result['StatusCode']) && $result['StatusCode'] == 1) {
-            if ($result['Data'] ) {
-                $listData = $result['Data'];
+            if (isset($result['Data'])&&isset($result['Data']['ListData']) ) {
+                $listData = $result['Data']['ListData'];
                 foreach ($listData as $item) {
                     $student[] = [
                         'real_name' => isset($item['F_RealName'])?$item['F_RealName']:(isset($item['RealName'])?$item['RealName']:''),
