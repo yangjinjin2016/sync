@@ -113,7 +113,7 @@ class Sync
      */
     public function syncUser($org)
     {
-        $result = $this->curl_https(config('sso.server_sso_url').config('sso.userall_url').'?orgCode='.$org.'&userType=teacher|staff|org','',
+        $result = $this->curl_https($this->config['server_sso_url'].$this->config['userall_url'].'?orgCode='.$org.'&userType=teacher|staff|org','',
             'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
         $user = [];
         $result = json_decode($result,true);
@@ -277,7 +277,7 @@ class Sync
      */
 
     public function syncStudent($org){
-        $result = $this->curl_https($this->config['server_sso_url'].$this->config['userall_url'].'?orgCode='.$org.'&userType=student', '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
+        $result = $this->curl_https($this->config['server_sso_url'].$this->config['user_url'].'?orgCode='.$org.'&userType=student', '', 'get', ['Authorization:Bearer ' . $this->access_token,'Content-Type:application/json']);
         $student = [];
         $result = json_decode($result,true);
         if (isset($result['StatusCode']) && $result['StatusCode'] == 1) {
