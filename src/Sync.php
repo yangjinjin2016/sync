@@ -225,6 +225,8 @@ class Sync
                         'source' => 1,
                         'sort' => (int)$item['SortCode'],
                         'term_code' => $item['TermName'],
+                        'manager_id' => $item['ManagerId'] ?? '',
+                        'year'=>$item['Year'],
                     ];
 
                 }
