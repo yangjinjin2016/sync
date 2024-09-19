@@ -120,29 +120,29 @@ class Sync
         if (isset($result['StatusCode']) && $result['StatusCode'] == 1) {
             if (isset($result['Data'])&&isset($result['Data']['ListData'])  ) {
                 $listData = $result['Data']['ListData'];
-                foreach ($listData as $item) {
-                    $user[] = [
-                        'user_type' => isset($item['F_UserType'])?$item['F_UserType']:(isset($item['UserType'])?$item['UserType']:''),
-                        'user_name' => isset($item['F_RealName'])?$item['F_RealName']:(isset($item['RealName'])?$item['RealName']:''),
-                        'login_name' => isset($item['F_Account']) ?$item['F_Account']: (isset($item['Account'])?$item['Account']:''),
-                        'nickname' => isset($item['F_RealName']) ?$item['F_RealName']: (isset($item['RealName'])?$item['RealName']:''),
-                        'mobile' => isset($item['F_MobilePhone']) ?$item['F_MobilePhone']:(isset($item['MobilePhone'])?$item['MobilePhone']:''),
-                        'photo' => isset($item['F_HeadIcon']) ?$item['F_HeadIcon']:(isset($item['HeadIcon'])?$item['HeadIcon']: ''),
-                        'organizeid' => isset($item['F_OrganizeId'])?$item['F_OrganizeId']:(isset($item['OrganizeId'])?$item['OrganizeId']:''),
-                        'sex' =>(isset($item['F_Gender'])? ($item['F_Gender'] == true ? 1 : ($item['F_Gender'] == false ? 2 : 3)):($item['Gender'] == true ? 1 : ($item['Gender'] == false ? 2 : 3))),
-                        'uuid' => isset($item['F_Uid'])?$item['F_Uid']:(isset($item['Uid'])?$item['Uid']:''),
-                        'idcard' => isset($item['F_IdCard']) ?$item['F_IdCard']:(isset($item['IdCard'])?$item['IdCard']:''),
-                        'depart_id'=>$item['DepartmentId'],
-                        'depart'=>isset($item['Departments'])?$item['Departments']:'',
-                        'email'=>isset($item['Email'])?$item['Email']:'',
-                        'is_admin'=>isset($item['IsAdministrator'])?$item['IsAdministrator']:'',
-                        'job'=>isset($item['Job'])?$item['Job']:'',
-                        'isaudit'=>isset($item['F_IsAudit'])?$item['F_IsAudit']:0,
-                        'face_img'=>isset($item['F_FaceImg'])?$item['F_FaceImg']:'',
-                    ];
-                }
-
-
+            }else{
+                $listData = $result['Data'];
+            }
+            foreach ($listData as $item) {
+                $user[] = [
+                    'user_type' => isset($item['F_UserType'])?$item['F_UserType']:(isset($item['UserType'])?$item['UserType']:''),
+                    'user_name' => isset($item['F_RealName'])?$item['F_RealName']:(isset($item['RealName'])?$item['RealName']:''),
+                    'login_name' => isset($item['F_Account']) ?$item['F_Account']: (isset($item['Account'])?$item['Account']:''),
+                    'nickname' => isset($item['F_RealName']) ?$item['F_RealName']: (isset($item['RealName'])?$item['RealName']:''),
+                    'mobile' => isset($item['F_MobilePhone']) ?$item['F_MobilePhone']:(isset($item['MobilePhone'])?$item['MobilePhone']:''),
+                    'photo' => isset($item['F_HeadIcon']) ?$item['F_HeadIcon']:(isset($item['HeadIcon'])?$item['HeadIcon']: ''),
+                    'organizeid' => isset($item['F_OrganizeId'])?$item['F_OrganizeId']:(isset($item['OrganizeId'])?$item['OrganizeId']:''),
+                    'sex' =>(isset($item['F_Gender'])? ($item['F_Gender'] == true ? 1 : ($item['F_Gender'] == false ? 2 : 3)):($item['Gender'] == true ? 1 : ($item['Gender'] == false ? 2 : 3))),
+                    'uuid' => isset($item['F_Uid'])?$item['F_Uid']:(isset($item['Uid'])?$item['Uid']:''),
+                    'idcard' => isset($item['F_IdCard']) ?$item['F_IdCard']:(isset($item['IdCard'])?$item['IdCard']:''),
+                    'depart_id'=>$item['DepartmentId'],
+                    'depart'=>isset($item['Departments'])?$item['Departments']:'',
+                    'email'=>isset($item['Email'])?$item['Email']:'',
+                    'is_admin'=>isset($item['IsAdministrator'])?$item['IsAdministrator']:'',
+                    'job'=>isset($item['Job'])?$item['Job']:'',
+                    'isaudit'=>isset($item['F_IsAudit'])?$item['F_IsAudit']:0,
+                    'face_img'=>isset($item['F_FaceImg'])?$item['F_FaceImg']:'',
+                ];
             }
         }
 
